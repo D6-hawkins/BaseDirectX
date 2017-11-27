@@ -93,10 +93,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D3DX10.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -150,12 +152,42 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ColorShaderClass.cpp" />
+    <ClCompile Include="D3DClass.cpp" />
+    <ClCompile Include="inputclass.cpp" />
+    <ClCompile Include="Lightclass.cpp" />
+    <ClCompile Include="LightShaderClass.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="systemclass.cpp" />
+    <ClCompile Include="Textureclass.cpp" />
+    <ClCompile Include="textureshaderclass.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders.shader">
-      <FileType>CppCode</FileType>
-    </None>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="ColorShaderClass.h" />
+    <ClInclude Include="D3Dclass.h" />
+    <ClInclude Include="inputclass.h" />
+    <ClInclude Include="Lightclass.h" />
+    <ClInclude Include="LightShaderclass.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="systemclass.h" />
+    <ClInclude Include="Textureclass.h" />
+    <ClInclude Include="textureshaderclass.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Color.ps.shader" />
+    <None Include="Color.vs.shader" />
+    <None Include="Light.ps.shader" />
+    <None Include="Light.vs.shader" />
+    <None Include="texture.ps.shader" />
+    <None Include="texture.vs.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Cube.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
