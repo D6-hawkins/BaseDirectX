@@ -1,17 +1,28 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: texture.vs
+// Filename: texture.fx
 ////////////////////////////////////////////////////////////////////////////////
 
 
 /////////////
 // GLOBALS //
 /////////////
-cbuffer MatrixBuffer
+matrix worldMatrix;
+matrix viewMatrix;
+matrix projectionMatrix;
+Texture2D shaderTexture;
+
+
+///////////////////
+// SAMPLE STATES //
+///////////////////
+SamplerState SampleType
 {
-	matrix worldMatrix;
-	matrix viewMatrix;
-	matrix projectionMatrix;
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Wrap;
+	AddressV = Wrap;
 };
+
+
 //////////////
 // TYPEDEFS //
 //////////////
@@ -19,6 +30,7 @@ struct VertexInputType
 {
 	float4 position : POSITION;
 	float2 tex : TEXCOORD0;
+	float3 instancePosition : TEXCOORD1;
 };
 
 struct PixelInputType
@@ -39,12 +51,47 @@ PixelInputType TextureVertexShader(VertexInputType input)
 	// Change the position vector to be 4 units for proper matrix calculations.
 	input.position.w = 1.0f;
 
+	// Update the position of the vertices based on the data for this particular instance.
+	input.position.x += input.instancePosition.x;
+	input.position.y += input.instancePosition.y;
+	input.position.z += input.instancePosition.z;
+
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output.position = mul(input.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
-		// Store the texture coordinates for the pixel shader.
-		output.tex = input.tex;
+
+	// Store the texture coordinates for the pixel shader.
+	output.tex = input.tex;
 
 	return output;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Pixel Shader
+////////////////////////////////////////////////////////////////////////////////
+float4 TexturePixelShader(PixelInputType input) : SV_Target
+{
+	float4 textureColor;
+
+
+// Sample the pixel color from the texture using the sampler at this texture coordinate location.
+textureColor = shaderTexture.Sample(SampleType, input.tex);
+
+return textureColor;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Technique
+////////////////////////////////////////////////////////////////////////////////
+technique10 TextureTechnique
+{
+	pass pass0
+	{
+		SetVertexShader(CompileShader(vs_4_0, TextureVertexShader()));
+		SetPixelShader(CompileShader(ps_4_0, TexturePixelShader()));
+		SetGeometryShader(NULL);
+	}
 }

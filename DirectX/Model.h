@@ -33,38 +33,47 @@ private:
 		float tu, tv;
 		float nx, ny, nz;
 	};
+	struct InstanceType
+	{
+		D3DXVECTOR3 position;
+	};
 public:
 	Model();
 	Model(const Model&);
 	~Model();
 
-	bool Initialize(ID3D11Device*,char*, WCHAR*);
+	bool Initialize(ID3D10Device*,char*, WCHAR*);
 	void Shutdown();
-	void Render(ID3D11DeviceContext*);
+	void Render(ID3D10Device*);
 
 	int GetIndexCount();
 
-	ID3D11ShaderResourceView* GetTexture();
+	ID3D10ShaderResourceView* GetTexture();
+
+	int GetVertexCount();
+	int GetInstanceCount();
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffers(ID3D10Device*);
 	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*);
+	void RenderBuffers(ID3D10Device*);
 
 private:
-	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
+	ID3D10Buffer *m_vertexBuffer, *m_indexBuffer;
 	int m_vertexCount, m_indexCount;
 
 	float length = 1.0f;
 	float height = 1.0f;
 	float width = 1.0f;
 
-	bool LoadTexture(ID3D11Device*, WCHAR*);
+	bool LoadTexture(ID3D10Device*, WCHAR*);
 	void ReleaseTexture();
 
 	bool LoadModel(char*);
 	void ReleaseModel();
 	TextureClass* m_Texture;
 	ModelType* m_model;
+	ID3D10Buffer *m_instanceBuffer;
+	int m_instanceCount;
 };
 
 #endif

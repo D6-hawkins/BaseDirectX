@@ -8,7 +8,8 @@
 //////////////
 // INCLUDES //
 //////////////
-#include <d3d11.h>
+#include <d3d10_1.h>
+#include <d3d10.h>
 #include <d3dx10math.h>
 #include <DirectXMath.h>
 #include <d3dx11async.h>

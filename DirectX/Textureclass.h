@@ -9,7 +9,7 @@
 // INCLUDES //
 //////////////
 #include <d3d11.h>
-#include <d3dx11tex.h>
+#include <d3dx10tex.h>
 
 class TextureClass
 {
@@ -17,12 +17,12 @@ public:
 	TextureClass();
 	TextureClass(const TextureClass&);
 	~TextureClass();
-	bool Initialize(ID3D11Device*, WCHAR*);
+	bool Initialize(ID3D10Device*, WCHAR*);
 	void Shutdown();
-		ID3D11ShaderResourceView* GetTexture();
+		ID3D10ShaderResourceView* GetTexture();
 
 private:
-		ID3D11ShaderResourceView* m_texture;
+		ID3D10ShaderResourceView* m_texture;
 };
 
 #endif

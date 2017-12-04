@@ -192,15 +192,10 @@ bool Renderer::Render(float rotation)
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
 	D3DXMatrixRotationY(&worldMatrix, rotation);
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_Model->Render(m_D3D->GetDeviceContext());
+	m_Model->Render(m_D3D->GetDevice());
 
-	// Render the model using the light shader.
-	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetDiffuseColor());
-	if (!result)
-	{
-		return false;
-	}
+	// Render the model using the texture shader.
+	m_TextureShader->Render(m_D3D->GetDevice(), m_Model->GetVertexCount(), m_Model->GetInstanceCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
 
 
 	// Present the rendered scene to the screen.
