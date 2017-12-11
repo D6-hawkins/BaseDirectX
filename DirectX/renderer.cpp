@@ -9,6 +9,7 @@ Renderer::Renderer()
 	m_TextureShader = 0;
 	m_LightShader = 0;
 	m_Light = 0;
+	isRotating = false;
 }
 Renderer::~Renderer()
 {
@@ -97,6 +98,19 @@ bool Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
+	//Initialise Ant tweak bar
+	TwInit(TW_DIRECT3D11, m_D3D->GetDevice());
+
+	TwWindowSize(200, 200); //Choose the window size for the bar
+
+	m_Bar = TwNewBar("Cube Values");
+	modelLength = m_Model->getLength(); //Find length
+	modelHeight = m_Model->getHeight(); //Find height
+	modelWidth = m_Model->getWidth(); //find width
+	TwAddVarRW(m_Bar, "X Axis", TW_TYPE_FLOAT, &modelLength, ""); //X axis value added to tweak bar
+	TwAddVarRW(m_Bar, "Y Axis", TW_TYPE_FLOAT, &modelHeight, ""); // Y axis value added to tweak bar
+	TwAddVarRW(m_Bar, "Z Axis", TW_TYPE_FLOAT, &modelWidth, ""); //z axis value added to tweak bar
+	TwAddVarRW(m_Bar, "Rotation", TW_TYPE_BOOL16, &isRotating, ""); //rotation bool added to tweak bar
 	return true;
 }
 void Renderer::Shutdown()
@@ -128,14 +142,6 @@ void Renderer::Shutdown()
 		delete m_D3D;
 		m_D3D = 0;
 	}
-	// Release the color shader object.
-	//if (m_ColorShader)
-	//{
-	//	m_ColorShader->Shutdown();
-	//	delete m_ColorShader;
-	//	m_ColorShader = 0;
-	//}
-
 	// Release the model object.
 	if (m_Model)
 	{
@@ -150,25 +156,36 @@ void Renderer::Shutdown()
 		delete m_Camera;
 		m_Camera = 0;
 	}
+	//Release the Tweak Bar
+	if (m_Bar)
+	{
+		TwTerminate();
+		m_Bar = 0;
+	}
 }
 bool Renderer::Frame()
 {
 	bool result;
 	// Render the graphics scene.
 	static float rotation = 0.0f;
-
-
+	m_Model->setLength(modelLength);
+	m_Model->setHeight(modelHeight);
+	m_Model->setWidth(modelWidth);
 	// Update the rotation variable each frame.
-	rotation += (float)D3DX_PI * 0.01f;
-	if (rotation > 360.0f)
+	if (isRotating == true)
 	{
-		rotation -= 360.0f;
+		rotation += (float)D3DX_PI * 0.01f;
+		if (rotation > 360.0f)
+		{
+			rotation -= 360.0f;
+		}
 	}
-	result = Render(rotation);
-	if (!result)
-	{
-		return false;
-	}
+		result = Render(rotation);
+		if (!result)
+		{
+			return false;
+		}
+
 	return true;
 }
 bool Renderer::Render(float rotation)
@@ -176,7 +193,6 @@ bool Renderer::Render(float rotation)
 	// Clear the buffers to begin the scene.
 	D3DXMATRIX viewMatrix, projectionMatrix, worldMatrix;
 	bool result;
-
 
 	// Clear the buffers to begin the scene.
 	m_D3D->BeginScene(0.0f, 0.0f, 0.5f, 1.0f);
@@ -197,6 +213,8 @@ bool Renderer::Render(float rotation)
 	// Render the model using the light shader.
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetDiffuseColor());
+
+	TwDraw();
 	if (!result)
 	{
 		return false;

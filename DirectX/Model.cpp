@@ -2,7 +2,9 @@
 // Filename: modelclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "Model.h"
-
+#include <algorithm>
+#include <iostream>
+#include <iterator>
 Model::Model()
 {
 	m_vertexBuffer = 0;
@@ -25,13 +27,16 @@ bool Model::Initialize(ID3D11Device* device,char* modelFilename, WCHAR* textureF
 {
 	bool result;
 
+	devStore = device;
+	modelFileName = modelFilename;
+	texName = textureFileName;
 	// Load in the model data,
 	result = LoadModel(modelFilename);
 	if (!result)
 	{
 		return false;
 	}
-	// Initialize the vertex and index buffer that hold the geometry for the triangle.
+	// Initialize the vertex and index buffer that hold the geometry for the model.
 	result = InitializeBuffers(device);
 	if (!result)
 	{
@@ -60,6 +65,8 @@ void Model::Shutdown()
 void Model::Render(ID3D11DeviceContext* deviceContext)
 {
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	Shutdown();
+	Initialize(devStore, modelFileName, texName);
 	RenderBuffers(deviceContext);
 
 	return;
@@ -80,11 +87,6 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT result;
 	int i;
-	//	// Set the number of vertices in the vertex array.
-	//	m_vertexCount = 3;
-
-	//// Set the number of indices in the index array.
-	//m_indexCount = 3;
 
 	// Create the vertex array.
 	vertices = new VERTEX[m_vertexCount];
@@ -102,7 +104,45 @@ bool Model::InitializeBuffers(ID3D11Device* device)
 	// Load the vertex array and index array with data.
 	for (i = 0; i<m_vertexCount; i++)
 	{
-		vertices[i].Pos = D3DXVECTOR3(m_model[i].x, m_model[i].y, m_model[i].z);
+		auto lengthVertex = std::find(std::begin(lenArray), std::end(lenArray), i);
+		auto heightVertex = std::find(std::begin(heightArray), std::end(heightArray), i);
+		auto depthVertex = std::find(std::begin(depthArray), std::end(depthArray), i);
+		if ((lengthVertex != std::end(lenArray) && heightVertex != std::end(heightArray) && depthVertex != std::end(depthArray)))
+		{
+			vertices[i].Pos = D3DXVECTOR3(m_model[i].x + length + Xpos, m_model[i].y + height + Ypos, m_model[i].z + width + Zpos); //If All three applicable
+		}
+		else if ((lengthVertex != std::end(lenArray) && depthVertex != std::end(depthArray)))
+		{
+			vertices[i].Pos = D3DXVECTOR3(m_model[i].x + length + Xpos, m_model[i].y + Ypos, m_model[i].z + width + Zpos); //If only length and depth applicable
+		}
+		else if ((lengthVertex != std::end(lenArray) && heightVertex != std::end(heightArray)))
+		{
+			vertices[i].Pos = D3DXVECTOR3(m_model[i].x + length + Xpos, m_model[i].y + height + Ypos, m_model[i].z + Zpos); //If only length and height applicable
+		}
+		else if ((depthVertex != std::end(depthArray) && heightVertex != std::end(heightArray)))
+		{
+			vertices[i].Pos = D3DXVECTOR3(m_model[i].x + Xpos, m_model[i].y + height + Ypos, m_model[i].z + width + Zpos); //If only depth and height applicable
+		}
+		else if ((depthVertex != std::end(depthArray) && lengthVertex != std::end(lenArray)))
+		{
+			vertices[i].Pos = D3DXVECTOR3(m_model[i].x + length + Xpos, m_model[i].y + Ypos, m_model[i].z + width + Zpos); //If only depth and length applicable
+		}
+		else if ((lengthVertex != std::end(lenArray)))
+		{
+			vertices[i].Pos = D3DXVECTOR3(m_model[i].x + length + Xpos, m_model[i].y + Ypos, m_model[i].z+ Zpos); //Only length
+		}
+		else if (heightVertex != std::end(heightArray))
+		{
+			vertices[i].Pos = D3DXVECTOR3(m_model[i].x + Xpos, m_model[i].y + height + Ypos, m_model[i].z + Zpos); //Only height
+		}
+		else if (depthVertex != std::end(depthArray))
+		{
+			vertices[i].Pos = D3DXVECTOR3(m_model[i].x + Xpos, m_model[i].y + Ypos, m_model[i].z + width + Zpos); //Only width
+		}
+		else
+		{
+			vertices[i].Pos = D3DXVECTOR3(m_model[i].x + Xpos, m_model[i].y + Ypos, m_model[i].z + Zpos); //None applicable
+		}
 		vertices[i].Tex = D3DXVECTOR2(m_model[i].tu, m_model[i].tv);
 		vertices[i].Norm = D3DXVECTOR3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
 

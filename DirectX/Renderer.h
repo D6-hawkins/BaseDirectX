@@ -10,6 +10,8 @@
 
 #include "LightShaderclass.h"
 #include "Lightclass.h"
+
+#include <AntTweakBar.h>
 //Global
 
 const bool FULL_SCREEN = false;
@@ -30,6 +32,13 @@ public:
 
 
 private:
+	float modelLength;
+	float modelHeight;
+	float modelWidth;
+	float modelXPos;
+	float modelYPos;
+	float modelZPos;
+	bool isRotating;
 	bool Render(float);
 	D3DClass* m_D3D;
 	Camera* m_Camera;
@@ -39,6 +48,8 @@ private:
 
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
+
+	TwBar* m_Bar;
 };
 
 #endif // !

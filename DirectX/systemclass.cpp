@@ -138,6 +138,10 @@ bool SystemClass::Frame()
 }
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
+	if (TwEventWin(hwnd, umsg, wparam, lparam))
+	{
+		return 0;
+	}
 	switch (umsg)
 	{
 		// Check if a key has been pressed on the keyboard.
@@ -239,7 +243,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	SetFocus(m_hwnd);
 
 	// Hide the mouse cursor.
-	ShowCursor(false);
+	ShowCursor(true);
 
 	return;
 }
